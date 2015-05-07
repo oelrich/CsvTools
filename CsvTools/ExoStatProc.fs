@@ -5,8 +5,6 @@ open System.IO
 open FSharp.Data
 open FSharp.Data.CsvExtensions
 
-exception Hell of string
-
 type RowType = Neg | IPC  | Data
 
 type Row = { RowType: RowType; Name : string; Values: (string * Option<double>) list}
@@ -48,18 +46,18 @@ let rec subtract_values (rhs: (string * Option<double>) list) (lhs: (string * Op
         if rhs_name = lhs_name then
             (rhs_name, Some(rhs_value - lhs_value)) :: subtract_values rest_rhs rest_lhs
         else
-            raise (Hell("That was an odd list ..."))
+            failwith "That was an odd list ..."
     |(rhs_name,None)::rest_rhs, (lhs_name,_)::rest_lhs ->
         if rhs_name = lhs_name then
             (rhs_name, None) :: subtract_values rest_rhs rest_lhs
         else
-            raise (Hell("That was an odd list ..."))
+            failwith "That was an odd list ..."
     |(rhs_name,_)::rest_rhs, (lhs_name,None)::rest_lhs ->
         if rhs_name = lhs_name then
             (rhs_name, None) :: subtract_values rest_rhs rest_lhs
         else
-            raise (Hell("That was an odd list ..."))
-    |_,_ -> raise (Hell("Eh"))
+            failwith "That was an odd list ..."
+    |_,_ -> failwith "Eh ..."
 
 let subtract_by_column (rhs:Row) (lhs:Row) =
     let values = subtract_values rhs.Values lhs.Values
@@ -92,14 +90,14 @@ let rec median_values_rec (rhs: (string * Option<double>) list) (mhs: (string * 
         if (rhs_name = mhs_name) && (mhs_name = lhs_name) then
             (rhs_name, Some(([rhs_value; mhs_value; lhs_value] |> List.sort).[1])) :: median_values_rec rest_rhs rest_mhs rest_lhs
         else
-            raise (Hell("That was an odd list ..."))
-    |_,_,_ -> raise (Hell("Eh"))
+            failwith "That was an odd list ..."
+    |_,_,_ -> failwith "Eh ..."
 
 let median_values (rows:Row list) =
     match rows with
     |rh::mh::lh::[] -> median_values_rec rh.Values mh.Values lh.Values
     |[] -> []
-    |_ -> raise (Hell("wrong number of elements in list"))
+    |_ -> failwith "wrong number of elements in list"
 
 let rec mean_values_rec (rhs: (string * Option<double>) list) (mhs: (string * Option<double>) list) (lhs: (string * Option<double>) list) =
     match rhs,mhs,lhs with
@@ -112,13 +110,13 @@ let rec mean_values_rec (rhs: (string * Option<double>) list) (mhs: (string * Op
         (rhs_name, None) :: mean_values_rec rest_rhs rest_mhs rest_lhs
     |(rhs_name,_)::rest_rhs,_::rest_mhs,(_,None)::rest_lhs ->
         (rhs_name, None) :: mean_values_rec rest_rhs rest_mhs rest_lhs
-    |_,_,_ -> raise (Hell("Eh"))
+    |_,_,_ -> failwith "Eh ..."
 
 let mean_values (rows:Row list) =
     match rows with
     |rh::mh::lh::[] -> mean_values_rec rh.Values mh.Values lh.Values
     |[] -> []
-    |_ -> raise (Hell("wrong number of elements in list"))
+    |_ -> failwith "wrong number of elements in list"
 
 let rec standard_deviations_rec (rhs: (string * Option<double>) list) (mhs: (string * Option<double>) list) (lhs: (string * Option<double>) list) =
     match rhs,mhs,lhs with
@@ -135,13 +133,13 @@ let rec standard_deviations_rec (rhs: (string * Option<double>) list) (mhs: (str
         (rhs_name, None) :: mean_values_rec rest_rhs rest_mhs rest_lhs
     |(rhs_name,_)::rest_rhs,_::rest_mhs,(_,None)::rest_lhs ->
         (rhs_name, None) :: mean_values_rec rest_rhs rest_mhs rest_lhs
-    |_,_,_ -> raise (Hell("Eh"))
+    |_,_,_ -> failwith "Eh ..."
 
 let standard_deviations (rows:Row list) =
     match rows with
     |rh::mh::lh::[] -> standard_deviations_rec rh.Values mh.Values lh.Values
     |[] -> []
-    |_ -> raise (Hell("wrong number of elements in list"))
+    |_ -> failwith "wrong number of elements in list"
 
 let rec print_row_rec (sw:StreamWriter) (data: (string * Option<double>) list) =
     match data with
