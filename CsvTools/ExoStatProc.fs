@@ -9,8 +9,6 @@ type RowType = Neg | IPC  | Data
 
 type Row = { RowType: RowType; Name : string; Values: (string * Option<double>) list}
 
-
-
 let load_csv (fname:string) (control_name:string) (negatives:string list) (ipcs:string list) =
     let data = CsvFile.Load(fname)
     [for row in data.Rows do
@@ -19,15 +17,15 @@ let load_csv (fname:string) (control_name:string) (negatives:string list) (ipcs:
             if String.Equals(cell, "999") then
                 None
             else
-                Some(row.[control_name].AsFloat(Globalization.CultureInfo.CurrentCulture))
+                Some(row.[control_name].AsFloat(Globalization.CultureInfo.GetCultureInfo("sv-SE")))
         let values =
             [for col in data.Headers.Value.[1..] do
                 if String.Equals(row.[col], "999") then
                     yield (col, None)
                 else
                     match control with
-                    |None -> yield (col, Some(row.[col].AsFloat(Globalization.CultureInfo.CurrentCulture)))
-                    |Some(ctrl) -> yield (col, Some(row.[col].AsFloat(Globalization.CultureInfo.CurrentCulture) - ctrl))]
+                    |None -> yield (col, Some(row.[col].AsFloat(Globalization.CultureInfo.GetCultureInfo("sv-SE"))))
+                    |Some(ctrl) -> yield (col, Some(row.[col].AsFloat(Globalization.CultureInfo.GetCultureInfo("sv-SE")) - ctrl))]
 
         let row_type =
             if List.exists (fun name -> String.Equals(name, row.[0].Trim())) negatives then
